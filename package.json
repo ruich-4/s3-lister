@@ -1,0 +1,22 @@
+{
+  "name": "@ruich-4/s3-lister",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ruich-4/s3-lister.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ruich-4/s3-lister/issues"
+  },
+  "homepage": "https://github.com/ruich-4/s3-lister#readme",
+  "description": "",
+  "dependencies": {
+    "aws4fetch": "^1.0.20"
+  }
+}

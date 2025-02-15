@@ -1,0 +1,18 @@
+# wrangler.toml.template
+
+name = "s3"  # The name of the Worker
+compatibility_date = "2025-01-29"  # Set the Cloudflare compatibility date
+
+# The main script for the Worker
+main = "index.js"
+
+# Environment variables (replace with actual values)
+[vars]
+TITLE = ""  # Page title
+ACCESS_KEY_ID = ""  # S3 access key ID
+SECRET_ACCESS_KEY = ""  # S3 secret access key
+S3_ENDPOINT = ""  # The endpoint for your S3 storage
+REGION = ""  # AWS region (adjust as needed)
+BUCKET_NAME = ""  # The name of your S3 bucket
+ACCESSPOLICY = "private"  # Access policy: "private" (default) or "public"
+DOWNLOAD_URL = ""  # Download URL (if applicable)
