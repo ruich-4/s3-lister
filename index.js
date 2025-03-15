@@ -3,16 +3,25 @@ import { AwsClient } from "aws4fetch";
 function parseListObjectsXml(xmlString) {
   try {
     const contents = [];
-    const regex =
-      /<Contents>\s*<Key>([^<]+)<\/Key>\s*<Size>(\d+)<\/Size>\s*<LastModified>([^<]+)<\/LastModified>/g;
-    let match;
 
-    while ((match = regex.exec(xmlString)) !== null) {
-      contents.push({
-        Key: match[1],
-        Size: parseInt(match[2], 10),
-        LastModified: match[3],
-      });
+    const contentsRegex = /<Contents>([\s\S]*?)<\/Contents>/g;
+    let contentsMatch;
+
+    while ((contentsMatch = contentsRegex.exec(xmlString)) !== null) {
+      const contentText = contentsMatch[1];
+      const keyMatch = /<Key>(.*?)<\/Key>/s.exec(contentText);
+      const sizeMatch = /<Size>(.*?)<\/Size>/s.exec(contentText);
+      const lastModifiedMatch = /<LastModified>(.*?)<\/LastModified>/s.exec(
+        contentText
+      );
+
+      if (keyMatch && sizeMatch && lastModifiedMatch) {
+        contents.push({
+          Key: keyMatch[1],
+          Size: parseInt(sizeMatch[1], 10),
+          LastModified: lastModifiedMatch[1]
+        });
+      }
     }
 
     return contents;
