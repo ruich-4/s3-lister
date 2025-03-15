@@ -388,9 +388,9 @@ function generateHtml(path, items, isRoot, host_name) {
            <span class="full-path">
            ${breadcrumbs.join('<span class="path-separator">/</span>')}
            </span>
-           <span class="current-folder-only">${
-             breadcrumbs[breadcrumbs.length - 1] || host_name
-           }</span>
+           <span class="current-folder-only">${breadcrumbs[
+             breadcrumbs.length - 1
+           ] || host_name}</span>
         </div>
         <div id="main">
            <div class="items">
@@ -415,17 +415,15 @@ function generateHtml(path, items, isRoot, host_name) {
                     <span class="l10n-size">Size</span>
                  </a>
               </li>
-              ${
-                !isRoot
-                  ? (() => {
-                      let parentPath = path;
-                      if (parentPath.endsWith("/")) {
-                        parentPath = parentPath.slice(0, -1);
-                      }
-                      const lastSlashIndex = parentPath.lastIndexOf("/");
-                      parentPath =
-                        parentPath.substring(0, lastSlashIndex) || "/";
-                      return `
+              ${!isRoot
+                ? (() => {
+                    let parentPath = path;
+                    if (parentPath.endsWith("/")) {
+                      parentPath = parentPath.slice(0, -1);
+                    }
+                    const lastSlashIndex = parentPath.lastIndexOf("/");
+                    parentPath = parentPath.substring(0, lastSlashIndex) || "/";
+                    return `
               <a href="${parentPath}" class="item back-button">
                  <div class="item-icon">
                     <svg class="folder-icon" viewBox="0 0 24 24" width="24" height="24">
@@ -437,34 +435,31 @@ function generateHtml(path, items, isRoot, host_name) {
                  <div class="item-size">-</div>
               </a>
               `;
-                    })()
-                  : ""
-              }
+                  })()
+                : ""}
               ${items
-                .map((item) => {
+                .map(item => {
                   const isDirectory = item.isDirectory;
                   const fullPath =
                     path === "/"
                       ? `/${encodeURIComponent(item.name)}`
-                      : `${path}${
-                          path.endsWith("/") ? "" : "/"
-                        }${encodeURIComponent(item.name)}`;
+                      : `${path}${path.endsWith("/")
+                          ? ""
+                          : "/"}${encodeURIComponent(item.name)}`;
                   return `
               <a href="${fullPath}" class="item">
                  <div class="item-icon">
-                    ${
-                      isDirectory
-                        ? `
+                    ${isDirectory
+                      ? `
                     <svg class="folder-icon" viewBox="0 0 24 24" width="24" height="24">
                        <path fill="currentColor" d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
                     </svg>
                     `
-                        : `
+                      : `
                     <svg class="file-icon" viewBox="0 0 24 24" width="24" height="24">
                        <path fill="currentColor" d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2z"/>
                     </svg>
-                    `
-                    }
+                    `}
                  </div>
                  <div class="item-name">${item.name}</div>
                  <div class="item-date">${item.date}</div>
@@ -483,10 +478,10 @@ export default {
   async fetch(request, env, ctx) {
     const context = {
       request,
-      env,
+      env
     };
     return await handleRequest(context);
-  },
+  }
 };
 
 async function handleRequest(context) {
@@ -505,7 +500,7 @@ async function handleRequest(context) {
   const aws = new AwsClient({
     accessKeyId: accsess_key_id,
     secretAccessKey: secret_access_key,
-    region: region,
+    region: region
   });
 
   const url = new URL(request.url);
@@ -514,7 +509,7 @@ async function handleRequest(context) {
 
   try {
     const listResponse = await aws.fetch(`${s3_endpoint}/${bucket_name}`, {
-      method: "GET",
+      method: "GET"
     });
 
     if (!listResponse.ok) {
@@ -524,12 +519,12 @@ async function handleRequest(context) {
     contents = parseListObjectsXml(xmlData);
   } catch (error) {
     return new Response(`Error listing files: ${error.message}`, {
-      status: 500,
+      status: 500
     });
   }
   try {
     if (path === "/") {
-      const rootItems = contents.map((file) => {
+      const rootItems = contents.map(file => {
         const firstPart = file.Key.split(path_delimiter)[0];
         const isDir = file.Key.indexOf(path_delimiter) !== -1;
         const isRootFile = file.Key === firstPart;
@@ -546,21 +541,21 @@ async function handleRequest(context) {
                 day: "2-digit",
                 hour: "2-digit",
                 minute: "2-digit",
-                second: "2-digit",
+                second: "2-digit"
               })
-            : null,
+            : null
         };
       });
 
       const uniqueItems = Array.from(
-        new Map(rootItems.map((item) => [item.name, item])).values()
-      ).map((item) => {
+        new Map(rootItems.map(item => [item.name, item])).values()
+      ).map(item => {
         if (item.isDirectory) {
-          const folderFiles = contents.filter((f) =>
+          const folderFiles = contents.filter(f =>
             f.Key.startsWith(item.name + "/")
           );
           const totalSize = folderFiles.reduce((sum, cur) => sum + cur.Size, 0);
-          const immediateFiles = folderFiles.filter((f) => {
+          const immediateFiles = folderFiles.filter(f => {
             const parts = f.Key.split("/");
             return parts.length === 2;
           });
@@ -577,13 +572,13 @@ async function handleRequest(context) {
               day: "2-digit",
               hour: "2-digit",
               minute: "2-digit",
-              second: "2-digit",
+              second: "2-digit"
             });
           }
           return {
             ...item,
             size: totalSize,
-            date: latestModified,
+            date: latestModified
           };
         } else {
           return item;
@@ -597,7 +592,7 @@ async function handleRequest(context) {
         return a.isDirectory ? -1 : 1;
       });
 
-      const items = sortedItems.map((item) => ({
+      const items = sortedItems.map(item => ({
         name: item.name,
         href: item.isDirectory
           ? `${encodeURIComponent(item.name)}/`
@@ -605,18 +600,18 @@ async function handleRequest(context) {
         isDirectory: item.isDirectory,
         size:
           item.size === 0 || item.size === null ? "-" : formatBytes(item.size),
-        date: item.date || "-",
+        date: item.date || "-"
       }));
 
       return new Response(generateHtml("/", items, true, host_name), {
         headers: {
-          "Content-Type": "text/html; charset=UTF-8",
-        },
+          "Content-Type": "text/html; charset=UTF-8"
+        }
       });
     } else {
       const requestPathNoSlash = path.replace(/^\/|\/$/g, "");
       const matchingFile = contents.find(
-        (file) => file.Key === requestPathNoSlash
+        file => file.Key === requestPathNoSlash
       );
 
       if (matchingFile && access_policy === "private") {
@@ -625,14 +620,14 @@ async function handleRequest(context) {
           {
             method: "GET",
             headers: {
-              host: new URL(s3_endpoint).host,
+              host: new URL(s3_endpoint).host
             },
-            expires: 3600,
+            expires: 3600
           }
         );
 
         const redirectResponse = await fetch(signedRequest.url, {
-          headers: Object.fromEntries(signedRequest.headers),
+          headers: Object.fromEntries(signedRequest.headers)
         });
 
         return redirectResponse;
@@ -640,28 +635,28 @@ async function handleRequest(context) {
         return Response.redirect(download_url + matchingFile.Key, 302);
       } else {
         const fileList = contents
-          .filter((file) => file.Key.startsWith(requestPathNoSlash))
-          .map((file) =>
+          .filter(file => file.Key.startsWith(requestPathNoSlash))
+          .map(file =>
             file.Key.replace(requestPathNoSlash, "").replace(/^\//, "")
           );
         const uniqueNames = fileList
-          .map((file) => file.split(path_delimiter)[0])
+          .map(file => file.split(path_delimiter)[0])
           .filter(Boolean)
           .filter((value, index, self) => self.indexOf(value) === index);
 
-        const items = uniqueNames.map((name) => {
-          const isDirectory = contents.some((c) =>
+        const items = uniqueNames.map(name => {
+          const isDirectory = contents.some(c =>
             c.Key.startsWith(`${requestPathNoSlash}/${name}/`)
           );
           const fileEntry = contents.find(
-            (c) => c.Key === `${requestPathNoSlash}/${name}`
+            c => c.Key === `${requestPathNoSlash}/${name}`
           );
           if (isDirectory) {
-            const folderFiles = contents.filter((c) =>
+            const folderFiles = contents.filter(c =>
               c.Key.startsWith(`${requestPathNoSlash}/${name}/`)
             );
             const totalSize = folderFiles.reduce((sum, c) => sum + c.Size, 0);
-            const immediateFiles = folderFiles.filter((c) => {
+            const immediateFiles = folderFiles.filter(c => {
               const relativePath = c.Key.replace(
                 `${requestPathNoSlash}/${name}/`,
                 ""
@@ -681,7 +676,7 @@ async function handleRequest(context) {
                 day: "2-digit",
                 hour: "2-digit",
                 minute: "2-digit",
-                second: "2-digit",
+                second: "2-digit"
               });
             }
             return {
@@ -689,7 +684,7 @@ async function handleRequest(context) {
               href: encodeURIComponent(name) + "/",
               isDirectory,
               size: formatBytes(totalSize),
-              date: latestModified,
+              date: latestModified
             };
           } else {
             return {
@@ -706,9 +701,9 @@ async function handleRequest(context) {
                       day: "2-digit",
                       hour: "2-digit",
                       minute: "2-digit",
-                      second: "2-digit",
+                      second: "2-digit"
                     })
-                  : "-",
+                  : "-"
             };
           }
         });
@@ -722,14 +717,14 @@ async function handleRequest(context) {
 
         return new Response(generateHtml(path, sortedItems, false, host_name), {
           headers: {
-            "Content-Type": "text/html; charset=UTF-8",
-          },
+            "Content-Type": "text/html; charset=UTF-8"
+          }
         });
       }
     }
   } catch (error) {
     return new Response(`Error listing files: ${error.message}`, {
-      status: 500,
+      status: 500
     });
   }
 }
